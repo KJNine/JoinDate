@@ -1,0 +1,12 @@
+name: JoinDate
+version: ${project.version}
+main: com.turbotailz.joindate.JoinDate
+api-version: '1.14'
+authors: [Turbotailz]
+description: A plugin that lets players check the date they joined a server
+website: https://turbotailz.com
+commands:
+  joindate:
+    description: Check your join date.
+    usage: /joindate
+    aliases: [jd]
