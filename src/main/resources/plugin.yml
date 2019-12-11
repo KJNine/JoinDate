@@ -10,3 +10,11 @@ commands:
     description: Check your join date.
     usage: /joindate
     aliases: [jd]
+    permission: joindate.check
+permissions:
+  joindate.check:
+    description: Allows joindate command
+    default: op
+  joindate.check.others:
+    description: Allows checking other players with joindate
+    default: op

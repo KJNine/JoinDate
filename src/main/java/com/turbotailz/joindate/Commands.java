@@ -17,6 +17,12 @@ public class Commands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (cmd.getName().equalsIgnoreCase("joindate")) {
+            if (sender instanceof Player && !sender.hasPermission("joindate.check")) {
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ("&7You do not have permission to run this command!")));
+
+                return true;
+            }
+
             Player player = null;
 
             if (args.length == 0) {
@@ -28,6 +34,12 @@ public class Commands implements CommandExecutor {
                     return true;
                 }
             } else if (args.length == 1) {
+                if (sender instanceof Player && !sender.hasPermission("joindate.check.others")) {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ("&7You do not have permission to check join dates of other players!")));
+
+                    return true;
+                }
+
                 String playerName = args[0];
 
                 player = Bukkit.getPlayer(playerName);
