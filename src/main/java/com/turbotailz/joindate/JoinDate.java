@@ -1,12 +1,9 @@
 package com.turbotailz.joindate;
 
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
 
 public final class JoinDate extends JavaPlugin {
 
@@ -22,6 +19,10 @@ public final class JoinDate extends JavaPlugin {
         instance = this;
         createConfig();
         this.getCommand("joindate").setExecutor(new Commands());
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new Placeholder(this).register();
+        }
     }
 
     @Override

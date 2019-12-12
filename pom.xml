@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.turbotailz</groupId>
-    <artifactId>join-date</artifactId>
-    <version>1.1.3</version>
+    <artifactId>JoinDate</artifactId>
+    <version>1.1.4</version>
     <packaging>jar</packaging>
 
     <name>JoinDate</name>
@@ -60,6 +60,10 @@
             <id>papermc-repo</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -67,6 +71,12 @@
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.12-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.10.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
