@@ -13,12 +13,14 @@ import java.util.Date;
 
 public class Commands implements CommandExecutor {
 
+    private JoinDate plugin = JoinDate.getPlugin();
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
         if (cmd.getName().equalsIgnoreCase("joindate")) {
             if (sender instanceof Player && !sender.hasPermission("joindate.check")) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ("&7You do not have permission to run this command!")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission")));
 
                 return true;
             }
@@ -29,27 +31,41 @@ public class Commands implements CommandExecutor {
                 if (sender instanceof Player) {
                     player = (Player) sender;
                 } else {
-                    sender.sendMessage("Only in-game players can check their join date!");
+                    sender.sendMessage(plugin.getConfig().getString("console-warning"));
 
                     return true;
                 }
             } else if (args.length == 1) {
-                if (sender instanceof Player && !sender.hasPermission("joindate.check.others")) {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ("&7You do not have permission to check join dates of other players!")));
+                if (args[0].equals("reload")) {
+                    if (sender instanceof Player && !sender.hasPermission("joindate.reload")) {
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission-reload")));
+
+                        return true;
+                    }
+
+                    plugin.reloadConfig();
+
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("reload-success")));
 
                     return true;
-                }
+                } else {
+                    if (sender instanceof Player && !sender.hasPermission("joindate.check.others")) {
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission-others")));
 
-                String playerName = args[0];
+                        return true;
+                    }
 
-                player = Bukkit.getPlayer(playerName);
+                    String playerName = args[0];
 
-                if (player == null) {
-                    Bukkit.getScheduler().runTaskAsynchronously(JoinDate.getPlugin(), () -> {
-                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+                    player = Bukkit.getPlayer(playerName);
 
-                        sendJoinDate(sender, offlinePlayer);
-                    });
+                    if (player == null) {
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+
+                            sendJoinDate(sender, offlinePlayer);
+                        });
+                    }
                 }
             }
 
@@ -70,7 +86,7 @@ public class Commands implements CommandExecutor {
             long offlineDate = ((OfflinePlayer) player).getFirstPlayed();
 
             if (offlineDate == 0) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', ("&7That player has not joined the server before.")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-has-not-joined")));
 
                 return true;
             }
@@ -78,15 +94,13 @@ public class Commands implements CommandExecutor {
             date = new Date(offlineDate);
         }
 
-
-
-        String joinDate = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z")
+        String joinDate = new SimpleDateFormat(plugin.getConfig().getString("date-format"))
                 .format(date);
 
         String string;
 
         if (sender == player) {
-            string = ChatColor.translateAlternateColorCodes('&', ("&7You joined the server on &a" + joinDate));
+            string = plugin.getConfig().getString("check-self");
         } else {
             String playerName = null;
 
@@ -96,8 +110,14 @@ public class Commands implements CommandExecutor {
                 playerName = ((OfflinePlayer) player).getName();
             }
 
-            string = ChatColor.translateAlternateColorCodes('&', ("&7" + playerName + " joined the server on &a" + joinDate));
+            assert playerName != null;
+
+            string = plugin.getConfig().getString("check-other");
+            string = string.replace("%p", playerName);
         }
+
+        string = string.replace("%d", joinDate);
+        string = ChatColor.translateAlternateColorCodes('&', string);
 
         sender.sendMessage(string);
         return true;

@@ -10,7 +10,6 @@ commands:
     description: Check your join date.
     usage: /joindate
     aliases: [jd]
-    permission: joindate.check
 permissions:
   joindate.check:
     description: Allows joindate command
