@@ -3,7 +3,7 @@ version: ${project.version}
 main: com.turbotailz.joindate.JoinDate
 api-version: '1.13'
 softdepend: [PlaceholderAPI]
-authors: [Turbotailz]
+authors: [Turbotailz, KJNine]
 description: A plugin that lets players check the date they joined a server
 website: https://turbotailz.com
 commands:
@@ -18,3 +18,6 @@ permissions:
   joindate.check.others:
     description: Allows checking other players with joindate
     default: op
+  joindate.bynumber:
+    description: Allows checking which player was number X
+    default: true

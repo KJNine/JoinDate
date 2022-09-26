@@ -1,11 +1,11 @@
 # Date format - Uses Java's SimpleDateFormat class
 # Test formats on this website: https://javadevtools.com/simpledateformat
-date-format: 'EEEE, d MMMM y - hh:mm:ss z'
+date-format: 'MMMM d, yyyy'
 
 # Messages
-check-self: '&7You joined the server on &a%d'
-check-other: '&7%p joined the server on &a%d'
-player-has-not-joined: '&7That player has not joined the server before.'
+check-self: '%d - #%n'
+check-other: '%p: %d - #%n'
+player-has-not-joined: 'That player has not joined the server before.'
 console-warning: 'Only in-game players can check their join date!'
 no-permission: '&7You do not have permission to run this command!'
 no-permission-others: '&7You do not have permission to check join dates of other players!'
