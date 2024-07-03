@@ -47,6 +47,10 @@ public class Placeholder extends PlaceholderExpansion {
                 return getJoinDate(date);
             }
         }
+        if(identifier.equals("join_number")) {
+            int joinNumber = plugin.getPlayerNumber(player.getUniqueId());
+            return Integer.toString(joinNumber);
+        }
 
         return null;
     }

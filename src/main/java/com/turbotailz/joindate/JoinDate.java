@@ -1,6 +1,7 @@
 package com.turbotailz.joindate;
 
 import com.google.gson.*;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -23,8 +24,8 @@ public final class JoinDate extends JavaPlugin implements Listener {
         return instance;
     }
 
-    public HashMap<UUID, Integer> jnMap;
-    private File df = new File(getDataFolder(), "data.json");
+    private final Map<UUID, Integer> jnMap = Collections.synchronizedMap(new HashMap<>());
+    private final File df = new File(getDataFolder(), "data.json");
     private BukkitTask autosaveTask;
 
     @Override
@@ -40,31 +41,35 @@ public final class JoinDate extends JavaPlugin implements Listener {
 
         getServer().getPluginManager().registerEvents(this, this);
 
-        if(df.exists()) {
-            try (FileReader fr = new FileReader(df)) {
-                JsonObject json = new JsonParser().parse(fr).getAsJsonObject();
-                jnMap = new HashMap<>(json.entrySet().stream()
-                        .collect(Collectors.<Map.Entry<String, JsonElement>, UUID, Integer>toMap(
-                                e -> UUID.fromString(e.getKey()),
-                                e -> e.getValue().getAsInt())));
-            } catch (Exception e) {
-                getLogger().log(Level.WARNING, "Exception loading Join-Numbers data file (proceeding with re-calculated data). ", e);
+        synchronized (jnMap) {
+            if(df.exists()) {
+                try (FileReader fr = new FileReader(df)) {
+                    JsonObject json = new JsonParser().parse(fr).getAsJsonObject();
+                    jnMap.putAll(json.entrySet().stream()
+                            .collect(Collectors.<Map.Entry<String, JsonElement>, UUID, Integer>toMap(
+                                    e -> UUID.fromString(e.getKey()),
+                                    e -> e.getValue().getAsInt())));
+                } catch (Exception e) {
+                    getLogger().log(Level.WARNING, "Exception loading Join-Numbers data file (proceeding with re-calculated data). ", e);
+                }
+            } else { // Calculate pre-existing players' join numbers.
+                List<UUID> sorted = Stream.of(getServer().getOfflinePlayers())
+                        .filter(OfflinePlayer::hasPlayedBefore)
+                        .sorted(Comparator.comparingLong(OfflinePlayer::getFirstPlayed))
+                        .map(OfflinePlayer::getUniqueId)
+                        .distinct()
+                        .collect(Collectors.toList());
+                int num = 1;
+                for(UUID u : sorted) {
+                    jnMap.put(u, num);
+                    num++;
+                }
             }
-        }
-        if(jnMap == null) { // Calculate pre-existing players' join numbers.
-            jnMap = new HashMap<>();
-            List<UUID> sorted = Stream.of(getServer().getOfflinePlayers())
-                    .filter(OfflinePlayer::hasPlayedBefore)
-                    .sorted(Comparator.comparingLong(OfflinePlayer::getFirstPlayed))
-                    .map(OfflinePlayer::getUniqueId)
-                    .distinct()
-                    .collect(Collectors.toList());
-            sorted.forEach(u -> jnMap.put(u, sorted.indexOf(u)+1));
         }
         autosaveTask = getServer().getScheduler().runTaskTimerAsynchronously(this, this::saveData, 1L, 18000L);
     }
 
-    public void saveData() {
+    private void saveData() {
         synchronized (jnMap) {
             try (FileWriter fw = new FileWriter(df)) {
                 Gson gson = new Gson();
@@ -77,6 +82,18 @@ public final class JoinDate extends JavaPlugin implements Listener {
         }
     }
 
+    public int getPlayerNumber(UUID uuid) {
+        synchronized (jnMap) {
+            return jnMap.get(uuid);
+        }
+    }
+
+    public Optional<UUID> getByNumber(int playerNumber) {
+        synchronized (jnMap) {
+            return jnMap.entrySet().stream().filter(e -> e.getValue() == playerNumber).map(Map.Entry::getKey).findFirst();
+        }
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
@@ -85,6 +102,13 @@ public final class JoinDate extends JavaPlugin implements Listener {
                 synchronized (jnMap) {
                     if(!jnMap.containsKey(p.getUniqueId())) {
                         jnMap.put(p.getUniqueId(), jnMap.size()+1);
+                    }
+                    String msg = getConfig().getString("first-join");
+                    if(msg != null && !msg.isEmpty()) {
+                        msg = msg.replace("%p", p.getDisplayName());
+                        msg = msg.replace("%n", Integer.toString(jnMap.get(p.getUniqueId())));
+                        msg = ChatColor.translateAlternateColorCodes('&', msg);
+                        getServer().broadcastMessage(msg);
                     }
                 }
             });

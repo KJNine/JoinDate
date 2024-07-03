@@ -8,11 +8,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.swing.text.html.Option;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Commands implements CommandExecutor {
 
@@ -65,13 +63,10 @@ public class Commands implements CommandExecutor {
                         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                             try {
                                 int n = Integer.parseInt(playerName.substring(1));
-                                if(plugin.jnMap.values().stream().anyMatch(i -> i == n)) {
-                                    plugin.jnMap.entrySet().stream()
-                                            .filter(e -> e.getValue() == n)
-                                            .forEachOrdered(e -> {
-                                                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(e.getKey());
-                                                sendJoinDate(sender, offlinePlayer);
-                                            });
+                                Optional<UUID> uuid = plugin.getByNumber(n);
+                                if(uuid.isPresent()) {
+                                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid.get());
+                                    sendJoinDate(sender, offlinePlayer);
                                 } else {
                                     sender.sendMessage("Nobody has that player number.");
                                 }
@@ -127,7 +122,7 @@ public class Commands implements CommandExecutor {
 
         if (sender == player) {
             string = plugin.getConfig().getString("check-self");
-            joinNumber = Integer.toString(plugin.jnMap.get(((Player) player).getUniqueId()));
+            joinNumber = Integer.toString(plugin.getPlayerNumber(((Player) player).getUniqueId()));
         } else {
             String playerName = null;
 
@@ -144,7 +139,7 @@ public class Commands implements CommandExecutor {
 
             string = plugin.getConfig().getString("check-other");
             string = string.replace("%p", playerName);
-            joinNumber = Integer.toString(plugin.jnMap.get(((OfflinePlayer) player).getUniqueId()));
+            joinNumber = Integer.toString(plugin.getPlayerNumber(((OfflinePlayer) player).getUniqueId()));
         }
 
         string = string.replace("%d", joinDate);

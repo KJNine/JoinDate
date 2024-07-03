@@ -5,6 +5,7 @@ date-format: 'MMMM d, yyyy'
 # Messages
 check-self: '%d - #%n'
 check-other: '%p: %d - #%n'
+first-join: '&x&0&0&F&F&0&0+&f %p (Player: %n) has been created.'
 player-has-not-joined: 'That player has not joined the server before.'
 console-warning: 'Only in-game players can check their join date!'
 no-permission: '&7You do not have permission to run this command!'
