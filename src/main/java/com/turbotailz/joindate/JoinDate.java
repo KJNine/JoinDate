@@ -24,6 +24,9 @@ public final class JoinDate extends JavaPlugin implements Listener {
         return instance;
     }
 
+    /**
+     * @deprecated should use {@link JoinDate#getPlayerNumber(UUID)} or {@link JoinDate#getByNumber(int)} to get join numbers.
+     */
     @Deprecated
     public final Map<UUID, Integer> jnMap = Collections.synchronizedMap(new HashMap<>());
     private final File df = new File(getDataFolder(), "data.json");
