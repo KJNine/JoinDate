@@ -24,7 +24,8 @@ public final class JoinDate extends JavaPlugin implements Listener {
         return instance;
     }
 
-    private final Map<UUID, Integer> jnMap = Collections.synchronizedMap(new HashMap<>());
+    @Deprecated
+    public final Map<UUID, Integer> jnMap = Collections.synchronizedMap(new HashMap<>());
     private final File df = new File(getDataFolder(), "data.json");
     private BukkitTask autosaveTask;
 
